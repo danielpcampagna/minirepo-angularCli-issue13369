@@ -1,27 +1,89 @@
-# MinirepoAngularCliIssue13369
+# Minimal Anular/Cli Issue 13369
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.1.4.
+This is a minimal repo to reproduce error reported in [issue #13369](https://github.com/angular/angular-cli/issues/13369).
 
-## Development server
+## Steps to reproduce
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+1. Create a minimal project.
 
-## Code scaffolding
+```cmd
+> ng new minirepo-angularCli-issue13369 --minimal --yarn
+? Would you like to add Angular routing? Yes
+? Which stylesheet format would you like to use? CSS
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+> ng version
+Angular CLI: 7.1.4
+Node: 11.3.0
+OS: win32 x64
+Angular: 7.1.4
+... animations, cli, common, compiler, compiler-cli, core, forms
+... language-service, platform-browser, platform-browser-dynamic
+... router
 
-## Build
+Package                           Version
+-----------------------------------------------------------
+@angular-devkit/architect         0.11.4
+@angular-devkit/build-angular     0.11.4
+@angular-devkit/build-optimizer   0.11.4
+@angular-devkit/build-webpack     0.11.4
+@angular-devkit/core              7.1.4
+@angular-devkit/schematics        7.1.4
+@ngtools/webpack                  7.1.4
+@schematics/angular               7.1.4
+@schematics/update                0.11.4
+rxjs                              6.3.3
+typescript                        3.1.6
+webpack                           4.23.1
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+```
 
-## Running unit tests
+2. Create the module and the component.
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+```cmd
+> cd  minirepo-angularCli-issue13369/
+> ng g module dashboard-page
+> ng generate component dashboard-page --module dashboard-page
+```
 
-## Running end-to-end tests
+3. Finally, create your lazy loading router for this new component.
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+  a. Adding a router for component, into `dashboard.module.ts`.
 
-## Further help
+```typescript
+export const routes = [
+  { path: '', component: DashboardPageComponent, pathMatch: 'full' }
+];
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+@NgModule({
+  declarations: [DashboardPageComponent],
+  imports: [
+    RouterModule.forChild(routes),
+    CommonModule
+  ]
+})
+export class DashboardPageModule { }
+```
+
+  b. Adding a lazy loading router to `dashboard-page.module` into `app-routing.modules.ts`.
+
+```typescript
+const routes: Routes = [
+  { path: 'dashboard', loadChildren: './dashboard-page/dashboard-page.module#DashboardPageModule' },
+];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule]
+})
+```
+
+  c. And, finally, adding router link to access our new path `dashboard`.
+
+```typescript
+<li>
+    <h2><a [routerLink]="['/dashboard']" routerLinkActive="active-link" >Dashboard</a></h2>
+</li>
+```
+
+
+However, following this steps, we didn't get the expected error.
