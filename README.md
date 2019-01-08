@@ -88,7 +88,7 @@ const routes: Routes = [
 
 4. Finally, append JIT Compiler as providers.
 
-  a. Export a function to return the result of `createCompiler()`. 
+  a. Export a function to return `createCompiler()` result. 
 
 ```typescript
 import { NgModule, COMPILER_OPTIONS, CompilerFactory, Compiler } from '@angular/core';
