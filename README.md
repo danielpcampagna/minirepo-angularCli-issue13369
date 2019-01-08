@@ -86,5 +86,26 @@ const routes: Routes = [
 </li>
 ```
 
+4. Finally, append JIT Compiler as providers.
 
-However, following this steps, we didn't get expected error.
+  a. Export a function to return the result of `createCompiler()`. 
+
+```typescript
+import { NgModule, COMPILER_OPTIONS, CompilerFactory, Compiler } from '@angular/core';
+import { JitCompilerFactory } from '@angular/platform-browser-dynamic';
+
+export function createCompiler(compilerFactory: CompilerFactory) {
+  return compilerFactory.createCompiler();
+}
+
+```
+
+  b. Then, append them in `@NgModule.providers`.
+
+```typescript
+  providers: [
+    {provide: COMPILER_OPTIONS, useValue: {}, multi: true},
+    {provide: CompilerFactory, useClass: JitCompilerFactory, deps: [COMPILER_OPTIONS]},
+    {provide: Compiler, useFactory: createCompiler, deps: [CompilerFactory]},
+  ],
+```
